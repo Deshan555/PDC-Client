@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>PDC System</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<style type="text/tailwindcss">
+    :root {
+      --primary-color: #6B1D3B;--secondary-color: #3B82F6;--accent-color: #FBB6CE;--background-color: #F7F9FC;
+      --text-primary: #1F2937;--text-secondary: #6B7280;}
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--background-color);
+      color: var(--text-primary);
+    }
+    .primary-bg {
+      background-color: var(--primary-color);
+    }
+    .secondary-bg {
+      background-color: var(--secondary-color);
+    }
+    .accent-bg {
+      background-color: var(--accent-color);
+    }
+    .text-primary-custom {color: var(--text-primary);
+    }
+    .text-secondary-custom {color: var(--text-secondary);
+    }
+    .tag-yellow {
+      background-color: #F6E05E;
+      color: #4A5568;}
+    .tag-green {
+      background-color: #68D391;
+      color: white;
+    }
+    .tag-blue {
+      background-color: #63B3ED;
+      color: white;
+    }
+    .tag-pink {
+      background-color: var(--accent-color);
+      color: var(--primary-color);}
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.6;
+    }
+    .nav-link {
+      @apply px-3 py-2 rounded-md text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white;
+    }
+    .nav-link-active {
+      @apply bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium;
+    }
+    .pdc-logo {
+        font-weight: 700;
+        font-size: 1.75rem;letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+    }
+    .pdc-logo .p { color: #FFFFFF; }
+    .pdc-logo .d { color: #FBB6CE; }.pdc-logo .c { color: #FFFFFF; }
+    .btn {
+        @apply py-2 px-4 rounded-md font-medium transition-colors duration-150;
+    }
+    .btn-primary {
+        @apply bg-[var(--primary-color)] text-white hover:bg-opacity-90;
+    }
+    .btn-secondary {
+        @apply bg-[var(--secondary-color)] text-white hover:bg-opacity-90;
+    }
+    .btn-outline {
+        @apply bg-transparent border border-[var(--primary-color)] text-[var(--primary-color)] hover:bg-[var(--primary-color)] hover:text-white;
+    }
+    .card {
+        @apply bg-white p-6 rounded-lg shadow-md;
+    }
+    .input-field {
+        @apply border border-gray-300 rounded-md p-2 w-full focus:ring-2 focus:ring-[var(--secondary-color)] focus:border-[var(--secondary-color)] transition-shadow;
+    }
+    .select-field {
+        @apply border border-gray-300 rounded-md p-2 w-full appearance-none pr-8 focus:ring-2 focus:ring-[var(--secondary-color)] focus:border-[var(--secondary-color)] transition-shadow;
+    }
+    .form-label {
+        @apply block text-sm font-medium text-gray-700 mb-1;
+    }.tabs button {
+        @apply py-2 px-4 font-medium text-gray-500 border-b-2 border-transparent hover:border-gray-300 hover:text-gray-700;
+    }
+    .tabs button.active {
+        @apply text-[var(--secondary-color)] border-[var(--secondary-color)];
+    }
+  </style>
+</head>
+<body x-data="{ currentPage: 'dashboard' }">
+<header class="primary-bg text-white shadow-md sticky top-0 z-50">
+<div class="container mx-auto flex justify-between items-center h-[70px] px-4 sm:px-6 lg:px-8">
+<div class="pdc-logo">
+<span class="p">P</span><span class="d">D</span><span class="c">C</span>
+</div>
+<nav class="hidden md:flex items-center space-x-1">
+<a :class="{ 'nav-link-active': currentPage === 'dashboard', 'nav-link': currentPage !== 'dashboard' }" @click.prevent="currentPage = 'dashboard'" href="#">
+<span class="material-icons mr-1 text-base align-middle">dashboard</span>Dashboard
+        </a>
+<a :class="{ 'nav-link-active': currentPage === 'addPeople', 'nav-link': currentPage !== 'addPeople' }" @click.prevent="currentPage = 'addPeople'" href="#">
+<span class="material-icons mr-1 text-base align-middle">group_add</span>Add People
+        </a>
+<a :class="{ 'nav-link-active': currentPage === 'settings', 'nav-link': currentPage !== 'settings' }" @click.prevent="currentPage = 'settings'" href="#">
+<span class="material-icons mr-1 text-base align-middle">settings</span>Settings
+        </a>
+</nav>
+<div class="flex items-center space-x-3">
+<div class="relative" x-data="{ open: false }">
+<button @click="open = !open" class="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-700 focus:outline-none">
+<span class="material-icons">account_circle</span>
+<span class="hidden sm:inline">Admin User</span>
+<span class="material-icons text-sm" x-bind:class="{ 'rotate-180': open }">keyboard_arrow_down</span>
+</button>
+<div @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-20 text-gray-700" x-show="open" x-transition="">
+<a class="block px-4 py-2 text-sm hover:bg-gray-100" href="#">Profile</a>
+<a class="block px-4 py-2 text-sm hover:bg-gray-100" href="#">Logout</a>
+</div>
+</div>
+<button @click="mobileMenuOpen = !mobileMenuOpen" class="md:hidden p-2 rounded-md hover:bg-gray-700 focus:outline-none">
+<span class="material-icons">menu</span>
+</button>
+</div>
+</div>
+<div class="md:hidden primary-bg" x-data="{ mobileMenuOpen: false }" x-show="mobileMenuOpen">
+<nav class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+<a :class="{ 'nav-link-active block': currentPage === 'dashboard', 'nav-link block': currentPage !== 'dashboard' }" @click.prevent="currentPage = 'dashboard'; mobileMenuOpen = false" href="#">Dashboard</a>
+<a :class="{ 'nav-link-active block': currentPage === 'addPeople', 'nav-link block': currentPage !== 'addPeople' }" @click.prevent="currentPage = 'addPeople'; mobileMenuOpen = false" href="#">Add People</a>
+<a :class="{ 'nav-link-active block': currentPage === 'settings', 'nav-link block': currentPage !== 'settings' }" @click.prevent="currentPage = 'settings'; mobileMenuOpen = false" href="#">Settings</a>
+</nav>
+</div>
+</header>
+<main class="container mx-auto p-4 sm:p-6 lg:p-8">
+<div x-show="currentPage === 'dashboard'">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+<div>
+<h2 class="text-3xl font-bold text-primary-custom">Data Dashboard</h2>
+<p class="text-secondary-custom text-sm">View, filter, and manage collected personal data.</p>
+</div>
+<button class="btn btn-secondary flex items-center space-x-2 text-sm whitespace-nowrap">
+<span class="material-icons text-base">bar_chart</span>
+<span>View Reports</span>
+</button>
+</div>
+<div class="card mb-6">
+<h3 class="text-xl font-semibold text-primary-custom mb-4">Filter Data</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+<input class="input-field col-span-1 md:col-span-2 lg:col-span-1" placeholder="Search by name, ID, etc." type="text"/>
+<div class="relative">
+<select class="select-field">
+<option>All Fields</option>
+<option>Name</option>
+<option>ID Number</option>
+</select>
+<span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">keyboard_arrow_down</span>
+</div>
+<div class="relative">
+<select class="select-field">
+<option>All Genders</option>
+<option>Male</option>
+<option>Female</option>
+<option>Other</option>
+</select>
+<span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">keyboard_arrow_down</span>
+</div>
+<div class="relative">
+<select class="select-field">
+<option>All Divisions</option>
+<option>Kelaniya</option>
+<option>Colombo Central</option>
+<option>Maharagama</option>
+</select>
+<span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">keyboard_arrow_down</span>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
+<div>
+<label class="form-label">Registration Date</label>
+<div class="flex items-center space-x-2">
+<div class="relative flex-1">
+<input class="input-field pr-10" placeholder="mm/dd/yyyy" type="date"/>
+</div>
+<span class="text-secondary-custom">to</span>
+<div class="relative flex-1">
+<input class="input-field pr-10" placeholder="mm/dd/yyyy" type="date"/>
+</div>
+</div>
+</div>
+<div>
+<label class="form-label">Age Range</label>
+<div class="flex items-center space-x-2">
+<input class="input-field" placeholder="Min" type="number"/>
+<span class="text-secondary-custom">to</span>
+<input class="input-field" placeholder="Max" type="number"/>
+</div>
+</div>
+<div class="flex items-center space-x-2">
+<label class="form-label whitespace-nowrap mb-0">Sort By:</label>
+<div class="relative flex-grow">
+<select class="select-field">
+<option>Registration Date</option>
+<option>Name (A-Z)</option>
+<option>Age (Youngest First)</option>
+</select>
+<span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">keyboard_arrow_down</span>
+</div>
+<button class="p-2 border border-gray-300 rounded-md hover:bg-gray-100">
+<span class="material-icons text-gray-600">arrow_downward</span>
+</button>
+</div>
+</div>
+<div class="mt-6 flex justify-end space-x-3">
+<button class="btn btn-outline text-sm">
+<span class="material-icons text-base mr-1 align-middle">clear_all</span>Reset Filters
+            </button>
+<button class="btn btn-primary text-sm">
+<span class="material-icons text-base mr-1 align-middle">search</span>Apply Filters
+            </button>
+</div>
+</div>
+<div class="mb-4 flex justify-between items-center">
+<h3 class="text-lg font-semibold text-primary-custom">Filtered Results (13 matches)</h3>
+<button class="btn btn-secondary text-sm flex items-center">
+<span class="material-icons text-base mr-1">download</span> Export Data
+        </button>
+</div>
+<div class="bg-white rounded-lg shadow-md overflow-x-auto">
+<table class="w-full min-w-[800px]">
+<thead class="bg-gray-50">
+<tr>
+<th class="p-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Name</th>
+<th class="p-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Type</th>
+<th class="p-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Gender</th>
+<th class="p-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Division</th>
+<th class="p-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Registered Date</th>
+<th class="p-3 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-gray-200">
+<tr>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom font-medium">Nimal Wickramasinghe</td>
+<td class="p-3 whitespace-nowrap">
+<span class="px-2 py-1 text-xs font-medium rounded-full tag-yellow">Child</span>
+</td>
+<td class="p-3 whitespace-nowrap">
+<span class="px-2 py-1 text-xs font-medium rounded-full tag-blue">Male</span>
+</td>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom">Kelaniya</td>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom">Jan 21, 2024</td>
+<td class="p-3 whitespace-nowrap text-sm space-x-2">
+<button class="text-blue-600 hover:text-blue-800"><span class="material-icons text-base">visibility</span></button>
+<button class="text-green-600 hover:text-green-800"><span class="material-icons text-base">edit</span></button>
+<button class="text-red-600 hover:text-red-800"><span class="material-icons text-base">delete</span></button>
+</td>
+</tr>
+<tr>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom font-medium">Tanya De Silva</td>
+<td class="p-3 whitespace-nowrap">
+<span class="px-2 py-1 text-xs font-medium rounded-full tag-yellow">Child</span>
+</td>
+<td class="p-3 whitespace-nowrap">
+<span class="px-2 py-1 text-xs font-medium rounded-full tag-pink">Female</span>
+</td>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom">Colombo Central</td>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom">Jan 20, 2024</td>
+<td class="p-3 whitespace-nowrap text-sm space-x-2">
+<button class="text-blue-600 hover:text-blue-800"><span class="material-icons text-base">visibility</span></button>
+<button class="text-green-600 hover:text-green-800"><span class="material-icons text-base">edit</span></button>
+<button class="text-red-600 hover:text-red-800"><span class="material-icons text-base">delete</span></button>
+</td>
+</tr>
+<tr>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom font-medium">Arjun Patel</td>
+<td class="p-3 whitespace-nowrap">
+<span class="px-2 py-1 text-xs font-medium rounded-full tag-yellow">Child</span>
+</td>
+<td class="p-3 whitespace-nowrap">
+<span class="px-2 py-1 text-xs font-medium rounded-full tag-blue">Male</span>
+</td>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom">Kadawatha</td>
+<td class="p-3 whitespace-nowrap text-sm text-primary-custom">Jan 17, 2024</td>
+<td class="p-3 whitespace-nowrap text-sm space-x-2">
+<button class="text-blue-600 hover:text-blue-800"><span class="material-icons text-base">visibility</span></button>
+<button class="text-green-600 hover:text-green-800"><span class="material-icons text-base">edit</span></button>
+<button class="text-red-600 hover:text-red-800"><span class="material-icons text-base">delete</span></button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="mt-6 flex justify-center">
+<nav aria-label="Pagination" class="inline-flex rounded-md shadow-sm -space-x-px">
+<a class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" href="#">
+<span class="material-icons text-base">chevron_left</span>
+</a>
+<a aria-current="page" class="relative z-10 inline-flex items-center px-4 py-2 border border-[var(--secondary-color)] bg-indigo-50 text-sm font-medium text-[var(--secondary-color)]" href="#"> 1 </a>
+<a class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" href="#"> 2 </a>
+<a class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50" href="#"> 3 </a>
+<a class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" href="#">
+<span class="material-icons text-base">chevron_right</span>
+</a>
+</nav>
+</div>
+</div>
+<div x-data="{ activeTab: 'individual' }" x-show="currentPage === 'addPeople'">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+<div>
+<h2 class="text-3xl font-bold text-primary-custom">Add People</h2>
+<p class="text-secondary-custom text-sm">Add new individuals or bulk upload data.</p>
+</div>
+</div>
+<div class="tabs border-b border-gray-200 mb-6">
+<button :class="{ 'active': activeTab === 'individual' }" @click="activeTab = 'individual'">
+<span class="material-icons mr-1 text-base align-middle">person_add</span> Add Individual
+        </button>
+<button :class="{ 'active': activeTab === 'bulk' }" @click="activeTab = 'bulk'">
+<span class="material-icons mr-1 text-base align-middle">upload_file</span> Bulk Upload
+        </button>
+</div>
+<div class="card" x-show="activeTab === 'individual'">
+<h3 class="text-xl font-semibold text-primary-custom mb-6">Individual Entry Form</h3>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="form-label" for="fullName">Full Name</label>
+<input class="input-field" id="fullName" name="fullName" placeholder="Enter full name" type="text"/>
+</div>
+<div>
+<label class="form-label" for="nic">NIC / Passport No.</label>
+<input class="input-field" id="nic" name="nic" placeholder="Enter ID number" type="text"/>
+</div>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+<div>
+<label class="form-label" for="dob">Date of Birth</label>
+<input class="input-field" id="dob" name="dob" type="date"/>
+</div>
+<div>
+<label class="form-label" for="gender">Gender</label>
+<div class="relative">
+<select class="select-field" id="gender" name="gender">
+<option value="">Select Gender</option>
+<option value="male">Male</option>
+<option value="female">Female</option>
+<option value="other">Other</option>
+</select>
+<span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">keyboard_arrow_down</span>
+</div>
+</div>
+<div>
+<label class="form-label" for="personType">Person Type</label>
+<div class="relative">
+<select class="select-field" id="personType" name="personType">
+<option value="">Select Type</option>
+<option value="child">Child</option>
+<option value="adult">Adult</option>
+<option value="senior">Senior Citizen</option>
+</select>
+<span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">keyboard_arrow_down</span>
+</div>
+</div>
+</div>
+<div>
+<label class="form-label" for="address">Address</label>
+<textarea class="input-field" id="address" name="address" placeholder="Enter full address" rows="3"></textarea>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div>
+<label class="form-label" for="division">Division</label>
+<div class="relative">
+<select class="select-field" id="division" name="division">
+<option value="">Select Division</option>
+<option value="kelaniya">Kelaniya</option>
+<option value="colombo_central">Colombo Central</option>
+<option value="maharagama">Maharagama</option>
+</select>
+<span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">keyboard_arrow_down</span>
+</div>
+</div>
+<div>
+<label class="form-label" for="contactNo">Contact Number</label>
+<input class="input-field" id="contactNo" name="contactNo" placeholder="Enter phone number" type="tel"/>
+</div>
+</div>
+<div class="pt-4 flex justify-end space-x-3">
+<button class="btn btn-outline" type="reset">
+<span class="material-icons text-base mr-1 align-middle">refresh</span>Reset Form
+            </button>
+<button class="btn btn-primary" type="submit">
+<span class="material-icons text-base mr-1 align-middle">save</span>Save Record
+            </button>
+</div>
+</form>
+</div>
+<div class="card" x-show="activeTab === 'bulk'">
+<h3 class="text-xl font-semibold text-primary-custom mb-6">Bulk Upload Data</h3>
+<div class="space-y-6">
+<div>
+<p class="text-secondary-custom mb-2">Download the template file, fill in the data, and upload it here.</p>
+<button class="btn btn-secondary text-sm flex items-center">
+<span class="material-icons text-base mr-1">file_download</span> Download CSV Template
+                </button>
+</div>
+<div>
+<label class="form-label" for="bulkFile">Upload File (CSV or Excel)</label>
+<input class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-[var(--secondary-color)] file:text-white hover:file:bg-opacity-90 cursor-pointer" id="bulkFile" name="bulkFile" type="file"/>
+<p class="mt-1 text-xs text-gray-500">Supported formats: .csv, .xls, .xlsx. Max file size: 5MB.</p>
+</div>
+<div class="bg-blue-50 border-l-4 border-blue-500 p-4 rounded-md">
+<div class="flex">
+<div class="flex-shrink-0">
+<span class="material-icons text-blue-500">info</span>
+</div>
+<div class="ml-3">
+<p class="text-sm text-blue-700">
+                            Ensure your data matches the template format to avoid errors. All fields in the template are required unless specified.
+                        </p>
+</div>
+</div>
+</div>
+<div class="pt-4 flex justify-end">
+<button class="btn btn-primary" type="submit">
+<span class="material-icons text-base mr-1 align-middle">upload</span> Upload and Process File
+                </button>
+</div>
+</div>
+</div>
+</div>
+<div x-show="currentPage === 'settings'">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+<div>
+<h2 class="text-3xl font-bold text-primary-custom">Application Settings</h2>
+<p class="text-secondary-custom text-sm">Manage themes, data display options, and other configurations.</p>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="lg:col-span-1 card">
+<h3 class="text-xl font-semibold text-primary-custom mb-4">Theme Customization</h3>
+<div class="space-y-4">
+<div>
+<label class="form-label">Primary Color</label>
+<div class="flex items-center space-x-2">
+<input class="w-10 h-10 rounded-md border border-gray-300 cursor-pointer" type="color" value="#6B1D3B"/>
+<input class="input-field flex-1" type="text" value="#6B1D3B"/>
+</div>
+</div>
+<div>
+<label class="form-label">Secondary Color</label>
+<div class="flex items-center space-x-2">
+<input class="w-10 h-10 rounded-md border border-gray-300 cursor-pointer" type="color" value="#3B82F6"/>
+<input class="input-field flex-1" type="text" value="#3B82F6"/>
+</div>
+</div>
+<div>
+<label class="form-label">Interface Mode</label>
+<div class="flex items-center space-x-4">
+<label class="flex items-center cursor-pointer">
+<input checked="" class="form-radio text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" name="themeMode" type="radio"/>
+<span class="ml-2 text-sm text-gray-700">Light Mode</span>
+</label>
+<label class="flex items-center cursor-pointer">
+<input class="form-radio text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" name="themeMode" type="radio"/>
+<span class="ml-2 text-sm text-gray-700">Dark Mode</span>
+</label>
+</div>
+</div>
+</div>
+<div class="mt-6">
+<button class="btn btn-primary w-full">
+<span class="material-icons text-base mr-1 align-middle">palette</span>Apply Theme
+                </button>
+</div>
+</div>
+<div class="lg:col-span-2 card">
+<h3 class="text-xl font-semibold text-primary-custom mb-4">Data Display Options</h3>
+<div class="space-y-6">
+<div>
+<label class="form-label" for="recordsPerPage">Records Per Page (Dashboard)</label>
+<div class="relative">
+<select class="select-field" id="recordsPerPage">
+<option>10</option>
+<option selected="">25</option>
+<option>50</option>
+<option>100</option>
+</select>
+<span class="material-icons absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-400">keyboard_arrow_down</span>
+</div>
+</div>
+<div>
+<span class="form-label">Default Sort Order</span>
+<div class="mt-2 space-y-2">
+<label class="flex items-center cursor-pointer">
+<input checked="" class="form-radio text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" name="sortOrder" type="radio"/>
+<span class="ml-2 text-sm text-gray-700">Registration Date (Newest First)</span>
+</label>
+<label class="flex items-center cursor-pointer">
+<input class="form-radio text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" name="sortOrder" type="radio"/>
+<span class="ml-2 text-sm text-gray-700">Name (Alphabetical A-Z)</span>
+</label>
+<label class="flex items-center cursor-pointer">
+<input class="form-radio text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" name="sortOrder" type="radio"/>
+<span class="ml-2 text-sm text-gray-700">Last Modified (Recent First)</span>
+</label>
+</div>
+</div>
+<div>
+<span class="form-label">Dashboard Columns Visibility</span>
+<div class="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+<label class="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+<input checked="" class="form-checkbox rounded text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" type="checkbox"/>
+<span class="ml-2 text-sm text-gray-700">Name</span>
+</label>
+<label class="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+<input checked="" class="form-checkbox rounded text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" type="checkbox"/>
+<span class="ml-2 text-sm text-gray-700">Type</span>
+</label>
+<label class="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+<input checked="" class="form-checkbox rounded text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" type="checkbox"/>
+<span class="ml-2 text-sm text-gray-700">Gender</span>
+</label>
+<label class="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+<input checked="" class="form-checkbox rounded text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" type="checkbox"/>
+<span class="ml-2 text-sm text-gray-700">Division</span>
+</label>
+<label class="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+<input checked="" class="form-checkbox rounded text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" type="checkbox"/>
+<span class="ml-2 text-sm text-gray-700">Registered Date</span>
+</label>
+<label class="flex items-center p-2 border border-gray-200 rounded-md hover:bg-gray-50 cursor-pointer">
+<input class="form-checkbox rounded text-[var(--secondary-color)] focus:ring-[var(--secondary-color)]" type="checkbox"/>
+<span class="ml-2 text-sm text-gray-700">Contact No.</span>
+</label>
+</div>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<button class="btn btn-primary">
+<span class="material-icons text-base mr-1 align-middle">save</span>Save Display Settings
+                </button>
+</div>
+</div>
+</div>
+</div>
+</main>
+<footer class="bg-gray-100 border-t border-gray-200 mt-12">
+<div class="container mx-auto py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-gray-600">
+      © 2024 Personal Data Collection System. All Rights Reserved.
+      <p class="text-xs mt-1">Designed with care for efficient data management.</p>
+</div>
+</footer>
+<script>
+    // Simple AlpineJS setup for page navigation
+    // More complex state management might be needed for a real app
+    document.addEventListener('alpine:init', () => {
+      Alpine.data('app', () => ({
+        currentPage: 'dashboard', // Default page
+        mobileMenuOpen: false,
+      }));
+    });
+  </script>
+<script defer="" src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+</body></html>
